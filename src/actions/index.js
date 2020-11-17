@@ -1,3 +1,5 @@
 export * from './auth.actions'
 export * from './user.actions'
 export * from './category.action'
+export * from './initalData.action'
+export * from './product.action'
