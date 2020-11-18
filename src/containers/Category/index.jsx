@@ -76,7 +76,7 @@ const Category = (props) => {
   //category list
   const createCategoryList = (categories, options = []) => {
     for (let category of categories) {
-      options.push({ value: category._id, name: category.name })
+      options.push({ value: category._id, name: category.name, parentId: category.parentId })
       if (category.children.length > 0) {
         createCategoryList(category.children, options)
       }
@@ -88,6 +88,36 @@ const Category = (props) => {
   const handelCategoryImage = (e) => {
     setCategoryImage(e.target.files[0]);
 
+  }
+  //update category..............
+  const updateCategory = () => {
+    setUpdateCategoryModal(true)
+    const categories = createCategoryList(category.categories);
+    const checkedArray = [];
+    const expandedArray = [];
+    checked.length > 0 && checked.forEach((categoryId, index) => {
+      const category = categories.find((category, _index) => categoryId === category.value)
+      category && checkedArray.push(category)
+    })
+
+    expanded.length > 0 && expanded.forEach((categoryId, index) => {
+      const category = categories.find((category, _index) => categoryId === category.value)
+      category && expandedArray.push(category)
+    })
+    setCheckedArray(checkedArray);
+    setExpandedArray(expandedArray);
+    console.log({ checked, expanded, categories, checkedArray, expandedArray })
+  }
+
+  //handel update input data
+  const handelCategoryInput = (key, value, index, type) => {
+    if (type == 'checked') {
+      const updatedCheckedArray = checkedArray.map((item, _index) => index == _index ? { ...item, [key]: value, } : item);
+      setCheckedArray(updatedCheckedArray)
+    } else if (type == 'expanded') {
+      const updatedExpandedArray = expandedArray.map((item, _index) => index == _index ? { ...item, [key]: value, } : item);
+      setExpandedArray(updatedExpandedArray)
+    }
   }
 
 
@@ -116,7 +146,7 @@ const Category = (props) => {
               onExpand={expanded => setExpanded(expanded)}
               icons={{
                 check: <IoIosCheckbox />,
-                uncheck: <IoIosCheckboxOutline/>,
+                uncheck: <IoIosCheckboxOutline />,
                 halfCheck: <IoIosCheckboxOutline />,
                 expandClose: <IoIosArrowForward />,
                 expandOpen: <IoIosArrowDown />,
@@ -124,9 +154,15 @@ const Category = (props) => {
             />
           </Col>
         </Row>
+        <Row>
+          <Col>
+            <button onClick={updateCategory}>Edit</button>
+            <button>Delete</button>
+          </Col>
+        </Row>
       </Container>
       {/* ....................modal start........................................ */}
-      <Modal modalTitle={"Add New Category"} show={show} handleClose={handleClose} >
+      <Modal modalTitle={"Add New Category"} show={show} handleClose={updateCategory} >
         <Input
           value={categoryName}
           placeholder={`Category Name`}
@@ -140,6 +176,86 @@ const Category = (props) => {
           }
         </select>
         <input type="file" name="categoryImage" className="form-control-file mt-3" onChange={handelCategoryImage} />
+      </Modal>
+      {/* ....................modal start........................................ */}
+
+
+      {/* ..............category update......modal start........................................ */}
+      <Modal size={`lg`} modalTitle={"Update Categories"} show={updateCategoryModal} handleClose={() => setUpdateCategoryModal(false)} >
+        <Row>
+          <Col>
+            <h6>Expanded</h6>
+          </Col>
+        </Row>
+        {
+          expandedArray.length > 0 &&
+          expandedArray.map((item, index) =>
+            <Row key={index}>
+              <Col>
+                <Input
+                  value={item.name}
+                  placeholder={`Category Name`}
+                  onChange={(e) => handelCategoryInput('name', e.target.value, index, 'expanded')}
+                />
+              </Col>
+              <Col>
+                <select value={item.parentId} className="form-control" onChange={(e) => handelCategoryInput('parendId', e.target.value, index, 'expanded')}>
+                  <option value="">Select Category </option>
+                  {
+                    createCategoryList(category.categories).map(option =>
+                      <option key={option.value} value={option.value}>{option.name}</option>)
+                  }
+                </select>
+              </Col>
+              <Col>
+                <select value={parentCategoryId} className="form-control" >
+                  <option value="">Select Category </option>
+                  <option value="store">Store </option>
+                  <option value="product">Product </option>
+                  <option value="page">Page </option>
+                </select>
+              </Col>
+            </Row>
+          )
+        }
+
+        <h6>Checked: Categories </h6>
+
+        {
+          checkedArray.length > 0 &&
+          checkedArray.map((item, index) =>
+            <Row key={index}>
+              <Col>
+                <Input
+                  value={item.name}
+                  placeholder={`Category Name`}
+                  onChange={(e) => handelCategoryInput('name', e.target.value, index, 'checked')}
+                />
+              </Col>
+              <Col>
+                <select value={item.parentId} className="form-control" onChange={(e) => handelCategoryInput('parendId', e.target.value, index, 'checked')}>
+                  <option value="">Select Category </option>
+                  {
+                    createCategoryList(category.categories).map(option =>
+                      <option key={option.value} value={option.value}>{option.name}</option>)
+                  }
+                </select>
+              </Col>
+              <Col>
+                <select value={parentCategoryId} className="form-control" >
+                  <option value="">Select Category </option>
+                  <option value="store">Store </option>
+                  <option value="product">Product </option>
+                  <option value="page">Page </option>
+                </select>
+              </Col>
+            </Row>
+          )
+        }
+
+
+
+        {/* <input type="file" name="categoryImage" className="form-control-file mt-3" onChange={handelCategoryImage} /> */}
       </Modal>
       {/* ....................modal start........................................ */}
     </Layout>

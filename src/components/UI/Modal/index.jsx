@@ -18,7 +18,7 @@ const NewModal = (props) => {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="primary" onClick={props.handleClose}>
-                    Add
+                    Save Change
           </Button>
             </Modal.Footer>
         </Modal>
